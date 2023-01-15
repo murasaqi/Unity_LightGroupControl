@@ -132,24 +132,39 @@ namespace Iridescent.LightGroupControl
                     currentInputs++;
             }
 
-
+            var index = 0;
             foreach (var lightValue in lightValueDictionary)
             {
+
+                if (m_TrackBinding.lightValues.Count >index)
+                {
+                    m_TrackBinding.lightValues[index].color = lightValue.Value.color;
+                    m_TrackBinding.lightValues[index].intensity = lightValue.Value.intensity;
+                    m_TrackBinding.lightValues[index].bounceIntensity = lightValue.Value.bounceIntensity;
+                    m_TrackBinding.lightValues[index].range = lightValue.Value.range;
+                }
+                // #if USE_HDRP
+                // if (additionalLightDataDict.ContainsKey(lightValue.Key))
+                // {
+                //     additionalLightDataDict[lightValue.Key].intensity=lightValue.Value.intensity;
+                //     additionalLightDataDict[lightValue.Key].range =lightValue.Value.range;
+                //     additionalLightDataDict[lightValue.Key].color =lightValue.Value.color;
+                //     lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
+                //     // additionalLightDataDict[lightValue.Key].bou
+                // }
+                // #else
                 lightValue.Key.color = lightValue.Value.color;
                 lightValue.Key.intensity = lightValue.Value.intensity;
                 lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
                 lightValue.Key.range = lightValue.Value.range;
-                
-                #if USE_HDRP
-                if (additionalLightDataDict.ContainsKey(lightValue.Key))
-                {
-                    additionalLightDataDict[lightValue.Key].intensity=lightValue.Value.intensity;
-                    // additionalLightDataDict[lightValue.Key].range =lightValue.Value.range;
-                }
-                #endif
+                // #endif
+                index++;
+
             }
+            
+            m_TrackBinding.TransferSyncGroup();
 
-
+           
         }
 
         public override void OnPlayableDestroy(Playable playable)

@@ -40,7 +40,7 @@ namespace Iridescent.LightGroupControl
         public float intensity = 1f;
         public float bounceIntensity = 1f;
         public float range = 10f;
-
+        
         public LightValue()
         {
             Reset();
@@ -59,7 +59,7 @@ namespace Iridescent.LightGroupControl
     {
 
         public List<Light> lights = new List<Light>();
-
+        public List<LightGroup> syncGroups = new List<LightGroup>();
         // public Dictionary<Light,LightValue> lightValueDict = new Dictionary<Light, LightValue>();
         public List<LightValue> lightValues = new List<LightValue>();
         // {
@@ -105,6 +105,27 @@ namespace Iridescent.LightGroupControl
             lights = GetComponentsInChildren<Light>().ToList();
         }
 
+
+        public void TransferSyncGroup()
+        {
+            foreach (var lightGroup in syncGroups)
+            {
+
+                var lights = lightGroup.lights;
+                foreach (var lightValue in lightValues)
+                {
+                    var index = lightValues.IndexOf(lightValue);
+                    if(index < lights.Count)
+                    {
+                        var light = lights[index];
+                        light.color = lightValue.color;
+                        light.intensity = lightValue.intensity;
+                        light.bounceIntensity = lightValue.bounceIntensity;
+                        light.range = lightValue.range;
+                    }
+                }
+            }
+        }
         // Update is called once per frame
         void Update()
         {
