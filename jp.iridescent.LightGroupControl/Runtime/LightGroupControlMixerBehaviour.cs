@@ -115,8 +115,8 @@ namespace Iridescent.LightGroupControl
                 {
                     lightValueDictionary.ElementAt(j).Value.color += clipLightValues[j].color * inputWeight;
                     lightValueDictionary.ElementAt(j).Value.intensity += clipLightValues[j].intensity * inputWeight;
-                    lightValueDictionary.ElementAt(j).Value.bounceIntensity +=
-                        clipLightValues[j].bounceIntensity * inputWeight;
+                    // lightValueDictionary.ElementAt(j).Value.bounceIntensity +=
+                    //     clipLightValues[j].bounceIntensity * inputWeight;
                     lightValueDictionary.ElementAt(j).Value.range += clipLightValues[j].range * inputWeight;
                 }
 
@@ -140,7 +140,7 @@ namespace Iridescent.LightGroupControl
                 {
                     m_TrackBinding.lightValues[index].color = lightValue.Value.color;
                     m_TrackBinding.lightValues[index].intensity = lightValue.Value.intensity;
-                    m_TrackBinding.lightValues[index].bounceIntensity = lightValue.Value.bounceIntensity;
+                    // m_TrackBinding.lightValues[index].bounceIntensity = lightValue.Value.bounceIntensity;
                     m_TrackBinding.lightValues[index].range = lightValue.Value.range;
                 }
                 // #if USE_HDRP
@@ -155,7 +155,7 @@ namespace Iridescent.LightGroupControl
                 // #else
                 lightValue.Key.color = lightValue.Value.color;
                 lightValue.Key.intensity = lightValue.Value.intensity;
-                lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
+                // lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
                 lightValue.Key.range = lightValue.Value.range;
                 // #endif
                 index++;
