@@ -26,7 +26,7 @@ namespace Iridescent.LightGroupControl
 
 
 
-        public Dictionary<Light, LightValue> lightValueDictionary = new Dictionary<Light, LightValue>();
+        public List<LightValue> tmpLightValues = new List<LightValue>();
 
 #if USE_HDRP
         private Dictionary<Light,HDAdditionalLightData> additionalLightDataDict = new Dictionary<Light, HDAdditionalLightData>();
@@ -56,31 +56,32 @@ namespace Iridescent.LightGroupControl
             int inputCount = playable.GetInputCount();
 
 
-            if (lightValueDictionary.Count != bindingLightValues.Count)
-            {
-                lightValueDictionary.Clear();
-                foreach (var light in m_TrackBinding.lights)
-                {
-                    lightValueDictionary.Add(light, new LightValue());
-                }
-            }
-
-            if (lightValueDictionary.Count != additionalLightDataDict.Count)
-            {
-
-                InitHDAdditionalLightData(m_TrackBinding.lights);          
-            }
-
-            foreach (var lightValue in lightValueDictionary)
-            {
-                lightValue.Value.Reset();
-            }
 
 
             float totalWeight = 0f;
             float greatestWeight = 0f;
             int currentInputs = 0;
 
+
+            if (tmpLightValues.Count != bindingLightValues.Count)
+            {
+                if (tmpLightValues.Count > bindingLightValues.Count)
+                {
+                    tmpLightValues.RemoveRange(bindingLightValues.Count, tmpLightValues.Count - bindingLightValues.Count);
+                }
+                else
+                {
+                    for (int i = tmpLightValues.Count; i < bindingLightValues.Count; i++)
+                    {
+                        tmpLightValues.Add(new LightValue());
+                    }
+                }
+            }
+
+            foreach (var tmpLightValue in tmpLightValues)
+            {
+                tmpLightValue.Reset();
+            }
             for (int i = 0; i < inputCount; i++)
             {
                 float inputWeight = playable.GetInputWeight(i);
@@ -108,19 +109,16 @@ namespace Iridescent.LightGroupControl
                     clipLightValue.lightName = m_TrackBinding.lights[lightIndex].gameObject.name;
                     lightIndex++;
                 }
-
-
-
-                for (int j = 0; j < lightValueDictionary.Count; j++)
+                
+                for (int j = 0; j < tmpLightValues.Count; j++)
                 {
-                    lightValueDictionary.ElementAt(j).Value.color += clipLightValues[j].color * inputWeight;
-                    lightValueDictionary.ElementAt(j).Value.intensity += clipLightValues[j].intensity * inputWeight;
-                    // lightValueDictionary.ElementAt(j).Value.bounceIntensity +=
+                    tmpLightValues[j].color += clipLightValues[j].color * inputWeight;
+                    tmpLightValues[j].intensity += clipLightValues[j].intensity * inputWeight;
+                    // tmpLightValues[j].bounceIntensity +=
                     //     clipLightValues[j].bounceIntensity * inputWeight;
-                    lightValueDictionary.ElementAt(j).Value.range += clipLightValues[j].range * inputWeight;
+                    tmpLightValues[j].range += clipLightValues[j].range * inputWeight;
                 }
-
-
+                
                 totalWeight += inputWeight;
 
                 if (inputWeight > greatestWeight)
@@ -133,37 +131,23 @@ namespace Iridescent.LightGroupControl
             }
 
             var index = 0;
-            foreach (var lightValue in lightValueDictionary)
+            foreach (var tmpLightValue in tmpLightValues)
             {
 
-                if (m_TrackBinding.lightValues.Count >index)
+                if (index < m_TrackBinding.lightValues.Count)
                 {
-                    m_TrackBinding.lightValues[index].color = lightValue.Value.color;
-                    m_TrackBinding.lightValues[index].intensity = lightValue.Value.intensity;
-                    // m_TrackBinding.lightValues[index].bounceIntensity = lightValue.Value.bounceIntensity;
-                    m_TrackBinding.lightValues[index].range = lightValue.Value.range;
+                    m_TrackBinding.lightValues[index].color = tmpLightValue.color;
+                    m_TrackBinding.lightValues[index].intensity = tmpLightValue.intensity;
+                    m_TrackBinding.lightValues[index].bounceIntensity = tmpLightValue.bounceIntensity;
+                    m_TrackBinding.lightValues[index].range = tmpLightValue.range;
                 }
-                // #if USE_HDRP
-                // if (additionalLightDataDict.ContainsKey(lightValue.Key))
-                // {
-                //     additionalLightDataDict[lightValue.Key].intensity=lightValue.Value.intensity;
-                //     additionalLightDataDict[lightValue.Key].range =lightValue.Value.range;
-                //     additionalLightDataDict[lightValue.Key].color =lightValue.Value.color;
-                //     lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
-                //     // additionalLightDataDict[lightValue.Key].bou
-                // }
-                // #else
-                lightValue.Key.color = lightValue.Value.color;
-                lightValue.Key.intensity = lightValue.Value.intensity;
-                // lightValue.Key.bounceIntensity = lightValue.Value.bounceIntensity;
-                lightValue.Key.range = lightValue.Value.range;
-                // #endif
                 index++;
 
             }
             
+            
+            m_TrackBinding.ApplyLightValues();
             m_TrackBinding.TransferSyncGroup();
-
            
         }
 

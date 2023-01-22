@@ -50,7 +50,7 @@ namespace Iridescent.LightGroupControl
         {
             color = Color.clear;
             intensity = 0f;
-            bounceIntensity = 9f;
+            bounceIntensity = 0f;
             range = 0f;
         }
     }
@@ -125,6 +125,26 @@ namespace Iridescent.LightGroupControl
                     }
                 }
             }
+        }
+
+
+        public void ApplyLightValues()
+        {
+            foreach (var lightValue in lightValues)
+            {
+                var index = lightValues.IndexOf(lightValue);
+                if (index < lights.Count)
+                {
+                    var light = lights[index];
+                    if(light == null) continue;
+                    light.color = lightValue.color;
+                    light.intensity = lightValue.intensity;
+                    light.bounceIntensity = lightValue.bounceIntensity;
+                    light.range = lightValue.range;
+                }
+            }
+            
+            TransferSyncGroup();
         }
         // Update is called once per frame
         void Update()
